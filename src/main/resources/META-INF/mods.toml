@@ -1,0 +1,28 @@
+# The mod's id, version, license and so on are filled in from gradle.properties when the mod is built.
+modLoader="javafml"
+loaderVersion="${forge_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+logoFile="assets/worldpainter/icon.png"
+description='''
+Paint your Minecraft world: biomes, terrain height, surface blocks and water/lava, before the world is created or after. Preview it in 3D and sculpt caves, overhangs and floating islands.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

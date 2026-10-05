@@ -1,0 +1,93 @@
+plugins {
+	id 'java'
+	id 'idea'
+	id 'net.minecraftforge.gradle' version '[7.0.23,8)'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+	archivesName = 'world-painter-forge'
+}
+
+// The sources keep the Fabric layout: common code in src/main, client-only code in src/client.
+// Forge builds both into one mod; the client classes are only loaded on the client.
+sourceSets.main {
+	java.srcDir 'src/client/java'
+	resources.srcDir 'src/client/resources'
+}
+
+// Mojang ships Java 25 with Minecraft 26.3.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+def mixinConfigs = ['worldpainter.mixins.json', 'worldpainter.client.mixins.json']
+
+minecraft {
+	runs {
+		configureEach {
+			workingDir = layout.projectDirectory.dir('run')
+			// In the development game the mod is not a jar, so Mixin is told about the configs here
+			// (the built jar lists them in its manifest).
+			mixinConfigs.each { args("--mixin.config=" + it) }
+		}
+
+		register('client')
+
+		register('server') {
+			args '--nogui'
+		}
+	}
+}
+
+repositories {
+	minecraft.mavenizer(it)
+	maven fg.forgeMaven
+	maven fg.minecraftLibsMaven
+	mavenCentral()
+}
+
+dependencies {
+	implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+	annotationProcessor "net.minecraftforge:eventbus-validator:${eventbus_version}"
+}
+
+processResources {
+	var replaceProperties = [
+			minecraft_version_range: minecraft_version_range,
+			forge_version_range    : forge_version_range,
+			mod_id                 : mod_id,
+			mod_name               : mod_name,
+			mod_license            : mod_license,
+			mod_version            : mod_version,
+			mod_authors            : mod_authors,
+	]
+	inputs.properties replaceProperties
+
+	filesMatching("META-INF/mods.toml") {
+		expand replaceProperties
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName" }
+	}
+
+	manifest {
+		// Mixin finds the mod's mixin configs through this.
+		attributes['MixinConfigs'] = mixinConfigs.join(',')
+	}
+}
