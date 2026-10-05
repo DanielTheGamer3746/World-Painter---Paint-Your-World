@@ -1,0 +1,33 @@
+# The mod's id, version, license and so on are filled in from gradle.properties when the mod is built.
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+iconFile="assets/worldpainter/icon.png"
+description='''
+Paint your Minecraft world: biomes, terrain height, surface blocks and water/lava, before the world is created or after. Preview it in 3D and sculpt caves, overhangs and floating islands.
+'''
+
+[[mixins]]
+config="worldpainter.mixins.json"
+
+# Only has client mixins, so nothing of it applies on a dedicated server.
+[[mixins]]
+config="worldpainter.client.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

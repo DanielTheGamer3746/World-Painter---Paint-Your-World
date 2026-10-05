@@ -1,0 +1,12 @@
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	// Downloads Java 25 for the build if it is not installed.
+	id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'world-painter'

@@ -1,0 +1,87 @@
+plugins {
+	id 'java-library'
+	id 'net.neoforged.moddev' version '2.0.148'
+	id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+	archivesName = 'world-painter-neoforge'
+}
+
+// The sources keep the Fabric layout: common code in src/main, client-only code in src/client.
+// NeoForge builds both into one mod; the client classes are only loaded on the client.
+sourceSets.main {
+	java.srcDir 'src/client/java'
+	resources.srcDir 'src/client/resources'
+}
+
+// Mojang ships Java 25 with Minecraft 26.3.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+neoForge {
+	version = project.neo_version
+
+	runs {
+		client {
+			client()
+		}
+
+		server {
+			server()
+			programArgument '--nogui'
+		}
+	}
+
+	mods {
+		"${mod_id}" {
+			sourceSet(sourceSets.main)
+		}
+	}
+}
+
+// Fills the mod's details (version, license, ...) into META-INF/neoforge.mods.toml.
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+	var replaceProperties = [
+			minecraft_version_range: minecraft_version_range,
+			neo_version            : neo_version,
+			mod_id                 : mod_id,
+			mod_name               : mod_name,
+			mod_license            : mod_license,
+			mod_version            : mod_version,
+			mod_authors            : mod_authors,
+	]
+	inputs.properties replaceProperties
+	expand replaceProperties
+	from "src/main/templates"
+	into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName" }
+	}
+}
+
+idea {
+	module {
+		downloadSources = true
+		downloadJavadoc = true
+	}
+}
