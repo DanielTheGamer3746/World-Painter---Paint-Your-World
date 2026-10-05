@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "worldpainter",
+	"version": "${version}",
+	"name": "World Painter",
+	"description": "Paint your Beta 1.7.3 world: biomes, terrain height, surface blocks, water and lava, caves and floating islands, dungeons and lakes, before the world is created or after.",
+	"authors": [
+		"Daniel"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/worldpainter/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"com.daniel.worldpainter.WorldPainter"
+		],
+		"client": [
+			"com.daniel.worldpainter.client.WorldPainterClient"
+		]
+	},
+	"mixins": [
+		"worldpainter.mixins.json",
+		{
+			"config": "worldpainter.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "1.0.0-beta.7.3",
+		"java": ">=17"
+	}
+}

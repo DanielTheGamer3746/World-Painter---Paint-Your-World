@@ -1,0 +1,74 @@
+plugins {
+	id 'fabric-loom' version "${loom_version}"
+	id 'babric-loom-extension' version "${babric_loom_version}"
+	id 'maven-publish'
+}
+
+base {
+	archivesName = 'world-painter'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	maven { url = 'https://maven.glass-launcher.net/snapshots/' }
+	maven { url = 'https://maven.glass-launcher.net/releases/' }
+	maven { url = 'https://maven.glass-launcher.net/babric' }
+	maven { url = 'https://maven.minecraftforge.net/' }
+	maven { url = 'https://jitpack.io/' }
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.glasslauncher:biny:${project.biny_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Logging for the development game, as in the Babric example mod. The mod itself logs through
+	// its own small logger, so it needs none of these in a real game.
+	runtimeOnly 'org.apache.logging.log4j:log4j-core:2.17.2'
+	runtimeOnly 'org.slf4j:slf4j-api:1.8.0-beta4'
+	runtimeOnly 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1'
+
+	// Beta 1.7.3 has no Gson: it reads and writes the design's JSON files, so it is bundled in the mod jar.
+	implementation 'com.google.code.gson:gson:2.11.0'
+	include 'com.google.code.gson:gson:2.11.0'
+}
+
+configurations.configureEach {
+	exclude group: 'babric'
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName" }
+	}
+}
+
+tasks.withType(GenerateModuleMetadata).configureEach {
+	enabled = false
+}
